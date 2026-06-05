@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "name": "PROTOTP",
+    "slug": "prototp-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "scheme": "prototp",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.aniket.prototp"
+    },
+    "plugins": [
+      "expo-router"
+    ]
+  }
+}

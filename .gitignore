@@ -1,0 +1,17 @@
+# Dependency directories
+node_modules/
+
+# Environment variables (Crucial for security)
+.env
+.env.local
+
+# Expo / React Native cache
+.expo/
+dist/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+.vscode/
