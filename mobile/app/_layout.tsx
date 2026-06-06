@@ -31,7 +31,7 @@ export default function RootLayout() {
 
     // Navigate after splash
     const navTimer = setTimeout(() => {
-      if (!token) {
+      if (!token) { // security token
         if (!inAuthGroup) router.replace('/(auth)');
       } else if (onboardingStatus === 'incomplete') {
         if (!inOnboardingGroup) router.replace('/(onboarding)');

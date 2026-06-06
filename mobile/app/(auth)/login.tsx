@@ -11,7 +11,7 @@ import { useThemeStore } from '../../src/store/themeStore';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 
-const API_URL = 'http://192.168.1.9:5000/api';
+const API_URL = 'https://prototp-backend.onrender.com/api';
 
 export default function LoginScreen() {
   const router = useRouter();
