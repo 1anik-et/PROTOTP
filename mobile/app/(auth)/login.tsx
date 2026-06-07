@@ -44,8 +44,8 @@ export default function LoginScreen() {
       setSuccessMessage('OTP Sent Successfully!');
       setTimeout(() => router.push('/(auth)/otp'), 800);
     } catch(error: any){
-      console.log('Firebase failed:', error.code, error.message);
-
+      setErrorMessage(`Firebase: ${error.code || error.message}`);
+      
       try{
         await axios.post(`${API_URL}/auth/send-otp`, { phone: phoneNumber });
         setAuthProvider('backend');
