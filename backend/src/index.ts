@@ -5,7 +5,7 @@ import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
 import admin from 'firebase-admin';
 
-const serviceAccount = require('./firebase-service-account.json');
+const serviceAccount = require('../firebase-service-account.json');
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
