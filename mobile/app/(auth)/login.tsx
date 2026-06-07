@@ -53,7 +53,8 @@ export default function LoginScreen() {
         setSuccessMessage('OTP Sent Successfully!');
         setTimeout(() => router.push('/(auth)/otp'), 800);
       } catch(backendError: any){
-        setErrorMessage('All verification services failed. Please try again.');
+        const serverMessage = backendError.response?.data?.message || backendError.response?.data?.error;
+        setErrorMessage(serverMessage || 'All verification services failed. Please try again.');
       }
     }
   };
