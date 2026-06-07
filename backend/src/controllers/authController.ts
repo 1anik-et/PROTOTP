@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import axios from 'axios';
 import twilio from 'twilio';
 import crypto from 'crypto';
-
+import admin, { messaging } from 'firebase-admin';
 const FYNO_URL = 'https://api.fyno.io/v1';
 
 const getTwilioClient = () => {
@@ -71,7 +71,35 @@ export const sendOTP = async (req: Request, res: Response) => {
   }
 };
 
+export const verifyFirebaseToken = async (req: Request, res: Response) => {
+  const { idToken } = req.body;
+  try{
+    // 1. Backend decrypts and verifies the Firebase ID Token
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const phone = decodedToken.phone_number; // e.g. "+919876543210"
+
+    // if phone is null or undefined
+    if (!phone) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'No phone number associated with this account token.' 
+      });
+    }
+
+    // Strip "+91" to match your local format if needed
+    const cleanPhone = phone.replace('+91', '');
+
+    // 2. BACKEND CALLS YOUR GENERATE TOKEN FUNCTION!
+    const appToken = generateToken(cleanPhone);
+
+    return res.status(200).json({ success: true, token: appToken });
+  } catch(error){
+    return res.status(401).json({ success: false, message: 'Unauthorized / Invalid Token' });
+  }
+};
+
 export const verifyOTP = async (req: Request, res: Response) => {
+
   try {
     const { phone, otp } = req.body;
 

@@ -10,12 +10,14 @@ import { useAuthStore } from '../../src/store/authStore';
 import { useThemeStore } from '../../src/store/themeStore';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
+import auth from '@react-native-firebase/auth';
+import { getConfirmation, setConfirmation } from '../../src/utils/firebaseHelper';
 
 const API_URL = 'https://prototp-backend.onrender.com/api';
 
 export default function OTPScreen() {
   const router = useRouter();
-  const { identifier, setToken } = useAuthStore();
+  const { identifier, setToken, authProvider } = useAuthStore();
   const { colors, isDark } = useThemeStore();
   const [verificationCode, setVerificationCode] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -44,14 +46,30 @@ export default function OTPScreen() {
     if (!identifier) return;
     setIsProcessing(true);
     setErrorMessage('');
-    try {
-      await axios.post(`${API_URL}/auth/send-otp`, { phone: identifier });
-      setCountdown(60);
-      setIsResendActive(false);
-    } catch (error: any) {
-      setErrorMessage(error.response?.data?.message || 'Failed to resend code');
-    } finally {
-      setIsProcessing(false);
+ 
+    if(authProvider === 'firebase'){
+      try{
+        const confirmation = await auth().signInWithPhoneNumber(`+91${identifier}`);
+        setConfirmation(confirmation);
+
+        setCountdown(60);
+        setIsResendActive(false);
+      } catch(error: any){
+        setErrorMessage(error.response?.data?.message || 'Firebase quota is completed for the day! Trying other servers...');
+      } finally{
+        setIsProcessing(false);
+      }
+    } else{
+      // for authProvider == 'backend'
+      try{
+        await axios.post(`${API_URL}/auth/send-otp`, { phone: identifier });
+        setCountdown(60);
+        setIsResendActive(false);
+      } catch(error: any){
+        setErrorMessage(error.response?.data?.message || 'Failed to resend code');
+      } finally{
+        setIsProcessing(false);
+      }
     }
   };
 
@@ -62,18 +80,33 @@ export default function OTPScreen() {
     }
     setIsProcessing(true);
     setErrorMessage('');
-    try {
-      const response = await axios.post(`${API_URL}/auth/verify-otp`, {
-        phone: identifier,
-        otp: verificationCode,
-      });
-      if (response.data.token) {
-        setToken(response.data.token);
+
+    if(authProvider === 'firebase'){
+      try{
+        const confirmation = getConfirmation();
+        await confirmation.confirm(verificationCode);
+        const idToken = await auth().currentUser?.getIdToken();
+
+        const response = await axios.post(`${API_URL}/auth/firebase-login`, { idToken });
+        if(response.data.token) setToken(response.data.token);
+      } catch(error: any){
+        setErrorMessage(error.response?.data?.message || 'Invalid or expired code');
+      } finally{
+        setIsProcessing(false);
       }
-    } catch (error: any) {
-      setErrorMessage(error.response?.data?.message || 'Invalid or expired code');
-    } finally {
-      setIsProcessing(false);
+    } else {
+      // for authProvider == 'backend' 
+      try{
+        const response = await axios.post(`${API_URL}/auth/verify-otp`, {
+          phone: identifier,
+          otp: verificationCode,
+        });
+        if(response.data.token) setToken(response.data.token);
+      } catch(error: any){
+        setErrorMessage(error.response?.data?.message || 'Invalid or expired code');
+      } finally{
+        setIsProcessing(false);
+      }
     }
   };
 

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "141651258218",
+    "project_id": "prototp",
+    "storage_bucket": "prototp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:141651258218:android:496c1ca0bb0a307e859313",
+        "android_client_info": {
+          "package_name": "com.aniket.prototp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDWEfOByg64xuVV467hekaubiO1m-iODME"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

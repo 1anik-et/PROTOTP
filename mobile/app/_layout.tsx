@@ -4,6 +4,9 @@ import { Stack, useRouter, useSegments, useRootNavigationState } from 'expo-rout
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useAuthStore } from '../src/store/authStore';
 import { useThemeStore } from '../src/store/themeStore';  
+// import * as SplashScreen from 'expo-splash-screen';
+
+// SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const { token, onboardingStatus } = useAuthStore();
@@ -21,29 +24,52 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (!isMounted || !navigationState?.key) return;
+    
+    // SplashScreen.hideAsync().catch(() => {});
 
     const inAuthGroup = segments[0] === '(auth)';
     const inOnboardingGroup = segments[0] === '(onboarding)';
     const inMainGroup = segments[0] === '(main)';
-
+    
     // Hide splash after a brief branding display
-    const splashTimer = setTimeout(() => setShowSplash(false), 1800);
+    // const splashTimer = setTimeout(() => setShowSplash(false), 1800);
+    const splashTimer = setTimeout(() => {
+      setShowSplash(false);
+    }, 1800);
+    
+    // // Navigate after splash
+    // const navTimer = setTimeout(() => {
+      //   if (!token) { // security token
+      //     if (!inAuthGroup) router.replace('/(auth)');
+      //   } else if (onboardingStatus === 'incomplete') {
+        //     if (!inOnboardingGroup) router.replace('/(onboarding)');
+        //   } else if (onboardingStatus === 'complete') {
+          //     if (!inMainGroup) router.replace('/(main)');
+          //   }
+          // }, 2000);
+          
+          // return () => {
+            //   clearTimeout(splashTimer);
+            //   clearTimeout(navTimer);
+            // };
 
-    // Navigate after splash
-    const navTimer = setTimeout(() => {
-      if (!token) { // security token
-        if (!inAuthGroup) router.replace('/(auth)');
-      } else if (onboardingStatus === 'incomplete') {
-        if (!inOnboardingGroup) router.replace('/(onboarding)');
-      } else if (onboardingStatus === 'complete') {
-        if (!inMainGroup) router.replace('/(main)');
-      }
-    }, 2000);
+    // 2. Hide the static Native Splash Screen immediately to reveal your custom one
+    
+    // 3. Keep YOUR custom splash screen up for exactly 1.5 seconds, then remove it
+    
 
-    return () => {
-      clearTimeout(splashTimer);
-      clearTimeout(navTimer);
-    };
+    // 3. Now it is safe to route
+    if (!token) {
+      if (!inAuthGroup) router.replace('/(auth)');
+    } else if (onboardingStatus === 'incomplete') {
+      if (!inOnboardingGroup) router.replace('/(onboarding)');
+    } else if (onboardingStatus === 'complete') {
+      if (!inMainGroup) router.replace('/(main)');
+    }
+    
+
+    return () => clearTimeout(splashTimer);
+
   }, [token, onboardingStatus, segments, navigationState?.key, isMounted]);
 
   // --- SPLASH SCREEN ---

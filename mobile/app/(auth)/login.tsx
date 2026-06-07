@@ -9,13 +9,15 @@ import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../src/store/authStore';
 import { useThemeStore } from '../../src/store/themeStore';
 import { Ionicons } from '@expo/vector-icons';
+import { setConfirmation } from '../../src/utils/firebaseHelper';
 import axios from 'axios';
+import auth from '@react-native-firebase/auth';
 
 const API_URL = 'https://prototp-backend.onrender.com/api';
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { setIdentifier } = useAuthStore();
+  const { setIdentifier, setAuthProvider } = useAuthStore();
   const { colors, isDark } = useThemeStore();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -32,15 +34,27 @@ export default function LoginScreen() {
     setErrorMessage('');
     setSuccessMessage('');
 
-    try {
-      await axios.post(`${API_URL}/auth/send-otp`, { phone: phoneNumber });
+    try{
+      // 1. Attempt Firebase Phone Auth
+      const confirmation = await auth().signInWithPhoneNumber(`+91${phoneNumber}`);
+      setConfirmation(confirmation);
+
+      setAuthProvider('firebase');
       setIdentifier(phoneNumber);
       setSuccessMessage('OTP Sent Successfully!');
       setTimeout(() => router.push('/(auth)/otp'), 800);
-    } catch (error: any) {
-      setErrorMessage(error.response?.data?.message || 'Network communication failure');
-    } finally {
-      setIsProcessing(false);
+    } catch(error: any){
+      console.log('Firebase quota is completed for the day! Trying other servers...');
+
+      try{
+        await axios.post(`${API_URL}/auth/send-otp`, { phone: phoneNumber });
+        setAuthProvider('backend');
+        setIdentifier(phoneNumber);
+        setSuccessMessage('OTP Sent Successfully!');
+        setTimeout(() => router.push('/(auth)/otp'), 800);
+      } catch(backendError: any){
+        setErrorMessage('All verification services failed. Please try again.');
+      }
     }
   };
 

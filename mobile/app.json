@@ -10,16 +10,25 @@
       "supportsTablet": true
     },
     "android": {
-      "package": "com.aniket.prototp"
+      "package": "com.aniket.prototp",
+      "googleServicesFile": "./google-services.json"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth"
     ],
     "extra": {
       "router": {},
       "eas": {
         "projectId": "46f68505-bbf6-40f3-9475-74f2bbfd0bcc"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/46f68505-bbf6-40f3-9475-74f2bbfd0bcc"
     }
   }
 }

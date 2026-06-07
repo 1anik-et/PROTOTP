@@ -15,3 +15,5 @@ Thumbs.db
 
 # Editor directories and files
 .vscode/
+
+firebase-service-account.json
