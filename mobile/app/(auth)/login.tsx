@@ -44,9 +44,10 @@ export default function LoginScreen() {
       setSuccessMessage('OTP Sent Successfully!');
       setTimeout(() => router.push('/(auth)/otp'), 800);
     } catch (error: any) {
-      console.log('Firebase failed:', error.code, error.message);
+      const firebaseErr = error.code || error.message || 'Unknown Firebase Error';
+      console.log('Firebase failed:', firebaseErr);
 
-      // Clear Firebase error before trying backend fallback
+      // Clear UI temporarily while trying backend
       setErrorMessage('');
 
       try {
@@ -57,7 +58,8 @@ export default function LoginScreen() {
         setTimeout(() => router.push('/(auth)/otp'), 800);
       } catch (backendError: any) {
         const serverMessage = backendError.response?.data?.message || backendError.response?.data?.error;
-        setErrorMessage(serverMessage || 'All verification services failed. Please try again.');
+        // Show BOTH errors for debugging purposes
+        setErrorMessage(`Firebase: ${firebaseErr}\nBackend: ${serverMessage || 'Failed'}`);
       }
     } finally {
       setIsProcessing(false);
