@@ -34,7 +34,7 @@ export default function LoginScreen() {
     setErrorMessage('');
     setSuccessMessage('');
 
-    try{
+    try {
       // 1. Attempt Firebase Phone Auth
       const confirmation = await auth().signInWithPhoneNumber(`+91${phoneNumber}`);
       setConfirmation(confirmation);
@@ -43,19 +43,24 @@ export default function LoginScreen() {
       setIdentifier(phoneNumber);
       setSuccessMessage('OTP Sent Successfully!');
       setTimeout(() => router.push('/(auth)/otp'), 800);
-    } catch(error: any){
-      setErrorMessage(`Firebase: ${error.code || error.message}`);
-      
-      try{
+    } catch (error: any) {
+      console.log('Firebase failed:', error.code, error.message);
+
+      // Clear Firebase error before trying backend fallback
+      setErrorMessage('');
+
+      try {
         await axios.post(`${API_URL}/auth/send-otp`, { phone: phoneNumber });
         setAuthProvider('backend');
         setIdentifier(phoneNumber);
         setSuccessMessage('OTP Sent Successfully!');
         setTimeout(() => router.push('/(auth)/otp'), 800);
-      } catch(backendError: any){
+      } catch (backendError: any) {
         const serverMessage = backendError.response?.data?.message || backendError.response?.data?.error;
         setErrorMessage(serverMessage || 'All verification services failed. Please try again.');
       }
+    } finally {
+      setIsProcessing(false);
     }
   };
 
