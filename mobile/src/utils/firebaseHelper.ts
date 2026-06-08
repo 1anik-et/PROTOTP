@@ -7,3 +7,7 @@ export const setConfirmation = (result: any) => {
 export const getConfirmation = () => {
     return confirmationResult;
 };
+
+export const clearConfirmation = () => {
+    confirmationResult = null;
+};

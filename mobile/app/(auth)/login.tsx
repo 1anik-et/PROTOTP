@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
   ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard,
@@ -9,7 +9,7 @@ import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../src/store/authStore';
 import { useThemeStore } from '../../src/store/themeStore';
 import { Ionicons } from '@expo/vector-icons';
-import { setConfirmation } from '../../src/utils/firebaseHelper';
+import { setConfirmation, clearConfirmation } from '../../src/utils/firebaseHelper';
 import axios from 'axios';
 import auth from '@react-native-firebase/auth';
 
@@ -24,18 +24,32 @@ export default function LoginScreen() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
+  // Debounce ref to prevent rapid successive calls
+  const lastSendTimeRef = useRef<number>(0);
+
   const handleSendCode = async () => {
     if (phoneNumber.length < 10) {
       setErrorMessage('Please enter a valid phone number');
       return;
     }
 
+    // Debounce: block if last send was less than 5 seconds ago
+    const now = Date.now();
+    if (now - lastSendTimeRef.current < 5000) {
+      setErrorMessage('Please wait a few seconds before trying again.');
+      return;
+    }
+    lastSendTimeRef.current = now;
+
     setIsProcessing(true);
     setErrorMessage('');
     setSuccessMessage('');
 
     try {
-      // 1. Attempt Firebase Phone Auth
+      // Cancel any previous Firebase session before starting a new one
+      clearConfirmation();
+
+      // Attempt Firebase Phone Auth
       const confirmation = await auth().signInWithPhoneNumber(`+91${phoneNumber}`);
       setConfirmation(confirmation);
 
