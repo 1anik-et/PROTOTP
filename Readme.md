@@ -1,5 +1,3 @@
-Here is the complete `README.md` file containing the full overview of the project based on the codebase. You can copy and paste this into your project's root `README.md` file.
-
 ***
 
 # PROTOTP - Secure Care. Instant Access.
